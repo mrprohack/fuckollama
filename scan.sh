@@ -30,6 +30,7 @@ RATE=10000
 TIMEOUT=300
 OUTPUT_DIR="."
 QUICK_RANGE="10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
 # Functions
 print_banner() {
@@ -256,9 +257,9 @@ main() {
     case "$mode" in
         quick)
             echo -e "${GREEN}[*] Quick scan mode (private ranges)${NC}"
-            scan_range "$QUICK_RANGE" "scan_quick"
-            if [ -f "scan_quick.ips" ]; then
-                parallel_check "scan_quick.ips"
+            scan_range "$QUICK_RANGE" "scan_quick_${TIMESTAMP}"
+            if [ -f "scan_quick_${TIMESTAMP}.ips" ]; then
+                parallel_check "scan_quick_${TIMESTAMP}.ips"
             fi
             ;;
         full)
@@ -266,9 +267,9 @@ main() {
             RATE=100000
             TIMEOUT=3600
             echo -e "${YELLOW}[*] Using aggressive settings: --rate $RATE --timeout $TIMEOUT${NC}"
-            scan_range "0.0.0.0/0" "scan_full"
-            if [ -f "scan_full.ips" ]; then
-                parallel_check "scan_full.ips"
+            scan_range "0.0.0.0/0" "scan_full_${TIMESTAMP}"
+            if [ -f "scan_full_${TIMESTAMP}.ips" ]; then
+                parallel_check "scan_full_${TIMESTAMP}.ips"
             fi
             ;;
         file)
@@ -281,9 +282,9 @@ main() {
             ;;
         custom)
             if [ -n "$custom_range" ]; then
-                scan_range "$custom_range" "scan_custom"
-                if [ -f "scan_custom.ips" ]; then
-                    parallel_check "scan_custom.ips"
+                scan_range "$custom_range" "scan_custom_${TIMESTAMP}"
+                if [ -f "scan_custom_${TIMESTAMP}.ips" ]; then
+                    parallel_check "scan_custom_${TIMESTAMP}.ips"
                 fi
             else
                 echo -e "${YELLOW}[*] No scan mode specified${NC}"

@@ -26,7 +26,7 @@ NC='\033[0m' # No Color
 
 # Default settings
 PORT=11434
-RATE=1000
+RATE=10000
 TIMEOUT=300
 OUTPUT_DIR="."
 QUICK_RANGE="10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
@@ -59,9 +59,10 @@ usage() {
     echo ""
     echo "Examples:"
     echo "  $0 --quick                        # Quick local test"
-    echo "  sudo $0 --full --timeout 60       # Full scan with 60s timeout"
+    echo "  sudo $0 --full                    # Full scan (1hr, 100k pps)"
+    echo "  sudo $0 --full --timeout 60       # Full scan 60s test"
+    echo "  sudo $0 --range 0.0.0.0/0 --rate 100000 --timeout 60"
     echo "  $0 --ip-file ips.txt              # Check specific IPs"
-    echo "  $0 --range 1.0.0.0/8 --rate 500   # Custom range"
     echo ""
     exit 0
 }
@@ -106,7 +107,9 @@ scan_range() {
         fi
     fi
     
+    echo -e "${GREEN}[*] Running: masscan -p$PORT $range --exclude 255.255.255.255 --rate=$RATE${NC}"
     echo -e "${GREEN}[*] Starting masscan...${NC}"
+    echo -e "${YELLOW}[!] Tip: For full internet scan, use --rate 100000+ --timeout 3600+${NC}"
     
     local masscan_pid=""
     masscan -p$PORT "$range" \
@@ -260,6 +263,9 @@ main() {
             ;;
         full)
             echo -e "${GREEN}[*] Full internet scan mode${NC}"
+            RATE=100000
+            TIMEOUT=3600
+            echo -e "${YELLOW}[*] Using aggressive settings: --rate $RATE --timeout $TIMEOUT${NC}"
             scan_range "0.0.0.0/0" "scan_full"
             if [ -f "scan_full.ips" ]; then
                 parallel_check "scan_full.ips"
